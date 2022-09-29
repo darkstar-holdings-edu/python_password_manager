@@ -1,0 +1,6 @@
+BACKGROUND_COLOR = "#FFF"
+FONT_COLOR = "#000"
+BOX_FONT = ("Arial", 14, "normal")
+LABEL_FONT = ("Arial", 14, "bold")
+BUTTON_HIGHLIGHT_BACKGROUND = "#d1dbe4"
+BUTTON_HIGHLIGHT_COLOR = "#9bf6ff"
