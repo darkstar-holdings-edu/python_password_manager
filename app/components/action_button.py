@@ -22,6 +22,7 @@ class ActionButton:
             width=width,
             command=event_handler,
             highlightbackground=BACKGROUND_COLOR,
+            takefocus=0,
         )
         button.grid(
             row=grid_row,

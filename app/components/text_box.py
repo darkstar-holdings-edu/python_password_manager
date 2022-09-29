@@ -1,4 +1,4 @@
-from tkinter import Entry, Label
+from tkinter import END, Entry, Label
 
 from ..config import (
     BACKGROUND_COLOR,
@@ -42,8 +42,8 @@ class TextBox:
             font=BOX_FONT,
             foreground=FONT_COLOR,
             highlightthickness=1,
-            highlightcolor=BUTTON_HIGHLIGHT_COLOR,
             highlightbackground=BUTTON_HIGHLIGHT_BACKGROUND,
+            highlightcolor=BUTTON_HIGHLIGHT_COLOR,
         )
 
         label.grid(
@@ -59,3 +59,12 @@ class TextBox:
 
         self.label = label
         self.entry = entry
+
+    def set_focus(self):
+        self.entry.focus()
+
+    def get_text(self):
+        return self.entry.get()
+
+    def clear_text(self):
+        return self.entry.delete(0, END)

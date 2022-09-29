@@ -1,11 +1,16 @@
-from tkinter import Tk
+from tkinter import Tk, messagebox
+import random
+import string
 
 from .config import BACKGROUND_COLOR
-
 from .logo import Logo
 from .components import ActionButton, TextBox
 
 APP_NAME = "Password Manager"
+
+ALLOWED_CHARS = string.ascii_letters + string.punctuation
+PASSWORD_SIZE = 22
+NL = "\n"
 
 
 class App(Tk):
@@ -20,7 +25,7 @@ class App(Tk):
         super().__init__()
 
         self.title(APP_NAME)
-        self.config(padx=25, pady=25, background=BACKGROUND_COLOR)
+        self.config(padx=50, pady=50, background=BACKGROUND_COLOR)
 
         self._init_ui()
 
@@ -77,8 +82,63 @@ class App(Tk):
             event_handler=self.add_button_handler,
         )
 
+        self.website_textbox.set_focus()
+
     def generate_button_handler(self):
-        print("Generate Clicked!")
+        self.password_textbox.clear_text()
+
+        password = "".join(random.choice(ALLOWED_CHARS) for _ in range(PASSWORD_SIZE))
+        self.password_textbox.entry.insert(0, password)
+
+        self.clipboard_clear()
+        self.clipboard_append(password)
 
     def add_button_handler(self):
-        print("Add Clicked!")
+        if self.is_form_valid():
+            self.save_form()
+
+    def is_form_valid(self) -> bool:
+        invalid_fields: list[str] = []
+
+        if not len(self.website_textbox.get_text()):
+            invalid_fields.append("Website")
+
+        if not len(self.username_textbox.get_text()):
+            invalid_fields.append("Email/Username")
+
+        if not len(self.password_textbox.get_text()):
+            invalid_fields.append("Password")
+
+        if len(invalid_fields):
+            messagebox.showerror(
+                title="Invalid Fields",
+                message=(
+                    f"The following fields are not valid:\n\n"
+                    f"{NL.join(invalid_fields)}"
+                ),
+            )
+
+            self.website_textbox.set_focus()
+
+            return False
+
+        return True
+
+    def save_form(self):
+        website = self.website_textbox.get_text()
+        username = self.username_textbox.get_text()
+        password = self.password_textbox.get_text()
+
+        row = " | ".join([website, username, password])
+        with open("data.txt", "a") as file:
+            file.write(f"{row}\n")
+            self.clear_form()
+            messagebox.showinfo(
+                message="Your password has been saved successfully.",
+                title="Save Successful",
+            )
+
+    def clear_form(self):
+        self.website_textbox.clear_text()
+        self.username_textbox.clear_text()
+        self.password_textbox.clear_text()
