@@ -1,16 +1,20 @@
 from tkinter import Tk, messagebox
 import random
 import string
+import json
 
 from .config import BACKGROUND_COLOR
 from .logo import Logo
 from .components import ActionButton, TextBox
 
 APP_NAME = "Password Manager"
+DATA_FILENAME = "data.json"
 
 ALLOWED_CHARS = string.ascii_letters + string.punctuation
 PASSWORD_SIZE = 22
 NL = "\n"
+
+PasswordData = dict[str, dict[str, str]]
 
 
 class App(Tk):
@@ -20,6 +24,8 @@ class App(Tk):
     password_textbox: TextBox
     generate_button: ActionButton
     add_button: ActionButton
+    search_button: ActionButton
+    password_data: PasswordData
 
     def __init__(self) -> None:
         super().__init__()
@@ -27,9 +33,10 @@ class App(Tk):
         self.title(APP_NAME)
         self.config(padx=50, pady=50, background=BACKGROUND_COLOR)
 
+        self.password_data = self.load_data()
         self._init_ui()
 
-    def _init_ui(self):
+    def _init_ui(self) -> None:
         self.logo = Logo(
             grid_row=0,
             grid_column=0,
@@ -40,10 +47,18 @@ class App(Tk):
             label_text="Website:",
             label_grid_row=1,
             label_grid_column=0,
-            box_width=42,
+            box_width=23,
             box_grid_row=1,
             box_grid_column=1,
-            box_grid_columnspan=2,
+            box_grid_columnspan=1,
+        )
+
+        self.search_button = ActionButton(
+            text="Search",
+            width=12,
+            grid_row=1,
+            grid_column=2,
+            event_handler=self.search_button_handler,
         )
 
         self.username_textbox = TextBox(
@@ -84,7 +99,7 @@ class App(Tk):
 
         self.website_textbox.set_focus()
 
-    def generate_button_handler(self):
+    def generate_button_handler(self) -> None:
         self.password_textbox.clear_text()
 
         password = "".join(random.choice(ALLOWED_CHARS) for _ in range(PASSWORD_SIZE))
@@ -93,9 +108,30 @@ class App(Tk):
         self.clipboard_clear()
         self.clipboard_append(password)
 
-    def add_button_handler(self):
+    def add_button_handler(self) -> None:
         if self.is_form_valid():
             self.save_form()
+
+    def search_button_handler(self) -> None:
+        website = self.website_textbox.get_text()
+
+        try:
+            data = self.password_data[website.lower()]
+        except KeyError:
+            messagebox.showerror(
+                title="Not Found",
+                message="There were no credentials found!",
+            )
+
+        else:
+            messagebox.showinfo(
+                title="Found Password",
+                message=(
+                    f"This website has the following credentials:\n\n"
+                    f"Username: {data['username']}\n"
+                    f"Password: {data['password']}\n"
+                ),
+            )
 
     def is_form_valid(self) -> bool:
         invalid_fields: list[str] = []
@@ -124,21 +160,40 @@ class App(Tk):
 
         return True
 
-    def save_form(self):
+    def load_data(self) -> PasswordData:
+        try:
+            with open("data.json", "r") as file:
+                data: PasswordData = json.load(file)
+
+        except (json.JSONDecodeError, FileNotFoundError):
+            data = {}
+
+        return data
+
+    def save_form(self) -> None:
         website = self.website_textbox.get_text()
         username = self.username_textbox.get_text()
         password = self.password_textbox.get_text()
 
-        row = " | ".join([website, username, password])
-        with open("data.txt", "a") as file:
-            file.write(f"{row}\n")
-            self.clear_form()
-            messagebox.showinfo(
-                message="Your password has been saved successfully.",
-                title="Save Successful",
-            )
+        entry: PasswordData = {
+            website.lower(): {
+                "username": username,
+                "password": password,
+            },
+        }
 
-    def clear_form(self):
+        self.password_data.update(entry)
+
+        with open("data.json", "w") as file:
+            json.dump(self.password_data, file)
+
+        self.clear_form()
+        messagebox.showinfo(
+            message="Your password has been saved successfully.",
+            title="Save Successful",
+        )
+
+    def clear_form(self) -> None:
         self.website_textbox.clear_text()
         self.username_textbox.clear_text()
         self.password_textbox.clear_text()

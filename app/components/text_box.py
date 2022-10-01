@@ -60,11 +60,11 @@ class TextBox:
         self.label = label
         self.entry = entry
 
-    def set_focus(self):
+    def set_focus(self) -> None:
         self.entry.focus()
 
-    def get_text(self):
+    def get_text(self) -> str:
         return self.entry.get()
 
-    def clear_text(self):
+    def clear_text(self) -> None:
         return self.entry.delete(0, END)

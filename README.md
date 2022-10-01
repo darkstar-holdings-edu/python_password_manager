@@ -1,11 +1,15 @@
-# Pomodoro Time Management App
+# Python Password Manager
 
 This is repo contains code that I generate while working on the [100 Days of Code](https://www.udemy.com/course/100-days-of-code/) udemy course for learning Python.
 
-This repo covers the project for days 29 of the course.
+This repo covers the project for days 29 and 30 of the course.
 
 ![GitHub Pipenv locked Python version](https://img.shields.io/github/pipenv/locked/python-version/darkstar-holdings-edu/python_password_manager)
 ![GitHub](https://img.shields.io/github/license/darkstar-holdings-edu/python_password_manager)
+
+## WARNING
+
+This is just a learning project. Don't actually use this if you care about security. The passwords are stored in a `data.json` file in clear text. There should be no expectation of security! You've been warned.
 
 ## Getting Started
 
